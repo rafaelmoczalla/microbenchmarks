@@ -1,0 +1,37 @@
+sources = ${SOURCE_LIST}
+streams = ${STREAM_LIST}
+
+startSources:
+	gradle :source:build
+	for s in \$(sources) ; \\
+	do \\
+		docker exec -it \$(shell echo \$(sources) | cut -d " " -f1) /kafka/bin/kafka-topics.sh --if-not-exists --create --topic \$\$s --bootstrap-server localhost:9092 ; \\
+	done
+	for s in \$(sources) ; \\
+	do \\
+		docker cp ./source/build/libs/${SOURCE_ARCHIVE_BASE_NAME}-${SOURCE_ARCHIVE_VERSION}.jar \$\$s:/ ; \\
+	done
+	for s in \$(sources) ; \\
+	do \\
+		docker exec -d \$\$s java -jar ${SOURCE_ARCHIVE_BASE_NAME}-${SOURCE_ARCHIVE_VERSION}.jar --eventSleep 10 --nrOfEvents 1000 ; \\
+	done
+
+rmSources:
+	for s in \$(sources) ; \\
+	do \\
+		docker exec -it \$(shell echo \$(sources) | cut -d " " -f1) /kafka/bin/kafka-topics.sh --if-exists --delete --topic \$\$s --bootstrap-server localhost:9092 ; \\
+	done
+
+submitJob:
+	gradle :distributed-join:build
+	@if [ -f "./distributed-join/build/libs/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar" ]; then cp "./distributed-join/build/libs/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar" "./submit/"; fi
+	docker build --tag spark-job ./submit
+	docker run --rm --network ${DOCKER_NETWORK} --name spark-job spark-job
+	docker rmi spark-job
+
+init:
+	gradle build
+
+clean:
+	gradle clean
+

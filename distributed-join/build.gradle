@@ -2,19 +2,12 @@ apply plugin: "java"
 apply plugin: "scala"
 apply plugin: "application"
 
-sourceCompatibility = 1.8
-
-ext {
-    scalaVersion = "2.12"
-    sparkVersion = "3.3.0"
-}
-
 jar {
-    archiveBaseName = "SparkJob"
-    archiveVersion = "0.1.0"
+    archiveBaseName = "$sparkAppArchiveBaseName"
+    archiveVersion = "$sparkAppArchiveVersion"
 
     manifest {
-        attributes "Implementation-Title": "Spark Distributed Join", "Implementation-Version": archiveVersion
+        attributes "Implementation-Title": archiveBaseName, "Implementation-Version": archiveVersion
         attributes "Main-Class": "org.moczalla.joins.distributedjoin.SparkMain"
     }
 
@@ -28,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.scala-lang:scala-library:$scalaVersion")
+    compileOnly("org.scala-lang:scala-library:$scalaVersion.$scalaSubversion")
     compileOnly("org.apache.spark:spark-mllib_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-sql_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-sql-kafka-0-10_$scalaVersion:$sparkVersion")

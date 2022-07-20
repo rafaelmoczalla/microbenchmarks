@@ -1,9 +1,9 @@
 package org.moczalla.joins.distributedjoin;
 
 
-import org.apache.spark._
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.streaming._
+import org.apache.spark._;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.streaming._;
 
 object SparkMain {
     @throws(classOf[Exception])

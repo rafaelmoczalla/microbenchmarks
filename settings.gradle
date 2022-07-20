@@ -1,2 +1,4 @@
 rootProject.name = 'spark-joins'
 include 'distributed-join'
+include 'source'
+

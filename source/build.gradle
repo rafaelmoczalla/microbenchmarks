@@ -1,0 +1,28 @@
+apply plugin: "java"
+apply plugin: "scala"
+apply plugin: "application"
+
+jar {
+    archiveBaseName = "$sourceArchiveBaseName"
+    archiveVersion = "$sourceArchiveVersion"
+
+    manifest {
+        attributes "Implementation-Title": archiveBaseName, "Implementation-Version": archiveVersion
+        attributes "Main-Class": "org.moczalla.stream.Source"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.scala-lang:scala-library:${scalaVersion}.$scalaSubversion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion") {
+        exclude group: "org.slf4l", module: "slf4j-api"
+    }
+}

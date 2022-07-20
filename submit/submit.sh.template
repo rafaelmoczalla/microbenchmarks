@@ -1,0 +1,29 @@
+#!/bin/bash
+
+/wait-for-step.sh
+/execute-step.sh
+
+if [ ! -z "${SPARK_APP_FOLDER}/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar" ]; then
+    echo "Submit application ${SPARK_APP_FOLDER}/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar with main class ${SPARK_APP_MAIN_CLASS} to Spark master spark://${SPARK_MASTER_NAME}:${SPARK_MASTER_PORT}"
+    echo "Passing arguments ${SPARK_APP_ARGS}"
+    ${SPARK_HOME}/bin/spark-submit \
+        --class ${SPARK_APP_MAIN_CLASS} \
+        --master spark://${SPARK_MASTER_NAME}:${SPARK_MASTER_PORT} \
+        --packages "org.apache.spark:spark-sql-kafka-0-10_${SCALA_VERSION}:${SPARK_VERSION}" \
+        ${SPARK_SUBMIT_ARGS} \
+        ${SPARK_APP_FOLDER}/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar ${SPARK_APP_ARGS}
+else
+    if [ ! -z "\${SPARK_APP_PYTHON_LOCATION}" ]; then
+        echo "Submit application \${SPARK_APP_PYTHON_LOCATION} to Spark master spark://${SPARK_MASTER_NAME}:${SPARK_MASTER_PORT}"
+        echo "Passing arguments ${SPARK_APP_ARGS}"
+        PYSPARK_PYTHON=python3  ${SPARK_HOME}/bin/spark-submit \
+            --master spark://${SPARK_MASTER_NAME}:${SPARK_MASTER_PORT} \
+            --packages "org.apache.spark:spark-sql-kafka-0-10_${SCALA_VERSION}:${SPARK_VERSION}" \
+            ${SPARK_SUBMIT_ARGS} \
+            \${SPARK_APP_PYTHON_LOCATION} ${SPARK_APP_ARGS}
+    else
+        echo "Not recognized application."
+    fi
+fi
+
+/finish-step.sh

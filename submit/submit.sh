@@ -1,32 +1,17 @@
 #!/bin/bash
 
-export SPARK_MASTER_URL=spark://${SPARK_MASTER_NAME}:${SPARK_MASTER_PORT}
-export SPARK_HOME=/spark
-export SCALA_VERSION="2.12"
-export SPARK_VERSION="3.3.0"
-export APP_DEPS="org.apache.spark:spark-sql-kafka-0-10_${SCALA_VERSION}:${SPARK_VERSION}"
-
 /wait-for-step.sh
 /execute-step.sh
 
-if [ ! -z "${SPARK_APPLICATION_JAR_LOCATION}" ]; then
-    echo "Submit application ${SPARK_APPLICATION_JAR_LOCATION} with main class ${SPARK_APPLICATION_MAIN_CLASS} to Spark master ${SPARK_MASTER_URL}"
-    echo "Passing arguments ${SPARK_APPLICATION_ARGS}"
-    ${SPARK_HOME}/bin/spark-submit \
-        --class ${SPARK_APPLICATION_MAIN_CLASS} \
-        --master ${SPARK_MASTER_URL} \
-        --packages ${APP_DEPS} \
-        ${SPARK_SUBMIT_ARGS} \
-        ${SPARK_APPLICATION_JAR_LOCATION} ${SPARK_APPLICATION_ARGS}
+if [ ! -z "/spark/applications/SparkJob-0.1.0.jar" ]; then
+    echo "Submit application /spark/applications/SparkJob-0.1.0.jar with main class org.moczalla.joins.distributedjoin.SparkMain to Spark master spark://node-main:7077"
+    echo "Passing arguments "
+    /spark/bin/spark-submit         --class org.moczalla.joins.distributedjoin.SparkMain         --master spark://node-main:7077         --packages "org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0"                  /spark/applications/SparkJob-0.1.0.jar 
 else
-    if [ ! -z "${SPARK_APPLICATION_PYTHON_LOCATION}" ]; then
-        echo "Submit application ${SPARK_APPLICATION_PYTHON_LOCATION} to Spark master ${SPARK_MASTER_URL}"
-        echo "Passing arguments ${SPARK_APPLICATION_ARGS}"
-        PYSPARK_PYTHON=python3  ${SPARK_HOME}/bin/spark-submit \
-            --master ${SPARK_MASTER_URL} \
-            --packages ${APP_DEPS} \
-            ${SPARK_SUBMIT_ARGS} \
-            ${SPARK_APPLICATION_PYTHON_LOCATION} ${SPARK_APPLICATION_ARGS}
+    if [ ! -z "${SPARK_APP_PYTHON_LOCATION}" ]; then
+        echo "Submit application ${SPARK_APP_PYTHON_LOCATION} to Spark master spark://node-main:7077"
+        echo "Passing arguments "
+        PYSPARK_PYTHON=python3  /spark/bin/spark-submit             --master spark://node-main:7077             --packages "org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0"                          ${SPARK_APP_PYTHON_LOCATION} 
     else
         echo "Not recognized application."
     fi
