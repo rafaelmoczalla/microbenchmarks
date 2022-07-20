@@ -29,9 +29,9 @@ submitJob:
 	docker run --rm --network ${DOCKER_NETWORK} --name spark-job spark-job
 	docker rmi spark-job
 
-init:
-	gradle build
-
 clean:
 	gradle clean
+
+initProject: clean
+	gradle build
 

@@ -15,13 +15,13 @@ object Source {
             case Nil =>
                 map
             case "--nrOfEvents" :: value :: tail =>
-                options(map ++ Map('nrOfEvents -> value.toInt), tail)
+                options(map ++ Map(Symbol("nrOfEvents") -> value.toInt), tail)
             case "--eventSleep" :: value :: tail =>
-                options(map ++ Map('eventSleep -> value.toInt), tail)
+                options(map ++ Map(Symbol("eventSleep") -> value.toInt), tail)
             case string :: opt2 :: tail if isOption(opt2) =>
-                options(map ++ Map('infile -> string), list.tail)
+                options(map ++ Map(Symbol("infile") -> string), list.tail)
             case string :: Nil =>
-                options(map ++ Map('infile -> string), list.tail)
+                options(map ++ Map(Symbol("infile") -> string), list.tail)
             case option :: tail =>
                 println("Unknown option " + option)
                 System.exit(1)
@@ -41,16 +41,16 @@ object Source {
             case Some(s: String) => s
         }
 
-        if (opts.contains('eventSleep))
-            eventSleep = opts('eventSleep).asInstanceOf[Int]
+        if (opts.contains(Symbol("eventSleep")))
+            eventSleep = opts(Symbol("eventSleep")).asInstanceOf[Int]
 
-        if (opts.contains('nrOfEvents))
-            nrOfEvents = opts('nrOfEvents).asInstanceOf[Int]
+        if (opts.contains(Symbol("nrOfEvents")))
+            nrOfEvents = opts(Symbol("nrOfEvents")).asInstanceOf[Int]
 
         try {
             val kafkaProducerProps: Properties = {
                 val props = new Properties()
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, sys.env.get("HOSTNAME") + ":9092")
+                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, sys.env.get("HOSTNAME").toString() + ":9092")
                 props.put(ProducerConfig.CLIENT_ID_CONFIG, sys.env.get("HOSTNAME").toString())
                 props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName())
                 props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getName())
