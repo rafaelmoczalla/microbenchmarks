@@ -1,20 +1,26 @@
 sources = ${SOURCE_LIST}
 streams = ${STREAM_LIST}
 
-startSources:
+buildSources:
 	gradle :source:build
+
+initKafkaTopics:
 	for s in \$(sources) ; \\
 	do \\
 		docker exec -it \$(shell echo \$(sources) | cut -d " " -f1) /kafka/bin/kafka-topics.sh --if-not-exists --create --topic \$\$s --bootstrap-server localhost:9092 ; \\
 	done
+
+quickStartSources:
 	for s in \$(sources) ; \\
 	do \\
 		docker cp ./source/build/libs/${SOURCE_ARCHIVE_BASE_NAME}-${SOURCE_ARCHIVE_VERSION}.jar \$\$s:/ ; \\
 	done
 	for s in \$(sources) ; \\
 	do \\
-		docker exec -d \$\$s java -jar ${SOURCE_ARCHIVE_BASE_NAME}-${SOURCE_ARCHIVE_VERSION}.jar --eventSleep 10 --nrOfEvents 1000 ; \\
+		docker exec --detach --env STREAM_LIST="${STREAM_LIST}" \$\$s java -jar ${SOURCE_ARCHIVE_BASE_NAME}-${SOURCE_ARCHIVE_VERSION}.jar --maxExecutionTime 30000 --eventSleep 10 --nrOfEvents 1000 ; \\
 	done
+
+startSources: buildSources initKafkaTopics quickStartSources
 
 rmSources:
 	for s in \$(sources) ; \\

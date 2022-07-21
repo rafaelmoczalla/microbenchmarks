@@ -5,20 +5,26 @@ init:
 	gradle clean
 	gradle build
 
-startSources:
+buildSources:
 	gradle :source:build
+
+initKafkaTopics:
 	for s in $(sources) ; \
 	do \
 		docker exec -it $(shell echo $(sources) | cut -d " " -f1) /kafka/bin/kafka-topics.sh --if-not-exists --create --topic $$s --bootstrap-server localhost:9092 ; \
 	done
+
+quickStartSources:
 	for s in $(sources) ; \
 	do \
 		docker cp ./source/build/libs/Source-0.1.0.jar $$s:/ ; \
 	done
 	for s in $(sources) ; \
 	do \
-		docker exec -d $$s java -jar Source-0.1.0.jar --eventSleep 10 --nrOfEvents 1000 ; \
+		docker exec --detach --env STREAM_LIST="stream-1 stream-2" $$s java -jar Source-0.1.0.jar --eventSleep 10 --nrOfEvents 1000 ; \
 	done
+
+startSources: buildSources initKafkaTopics quickStartSources
 
 rmSources:
 	for s in $(sources) ; \

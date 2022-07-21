@@ -2,6 +2,8 @@ package org.moczalla.stream;
 
 
 import java.util.Properties;
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord};
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -14,6 +16,8 @@ object Source {
         list match {
             case Nil =>
                 map
+            case "--maxExecutionTime" :: value :: tail =>
+                options(map ++ Map(Symbol("maxExecutionTime") -> value.toInt), tail)
             case "--nrOfEvents" :: value :: tail =>
                 options(map ++ Map(Symbol("nrOfEvents") -> value.toInt), tail)
             case "--eventSleep" :: value :: tail =>
@@ -32,13 +36,20 @@ object Source {
     @throws(classOf[Exception])
     def main(args: Array[String]): Unit = {
         // Options
+        var maxExecutionTime: Int = 30000
         var nrOfEvents: Int = 1000
         var eventSleep: Int = 10
 
         val opts = options(Map(), args.toList)
+
         val hostname = sys.env.get("HOSTNAME") match {
-            case None => "localhost"
             case Some(s: String) => s
+            case None => "localhost"
+        }
+
+        val streams = sys.env.get("STREAM_LIST") match {
+            case Some(s: String) => s.split(" +")
+            case None => println("Environment variable STREAM_LIST not set. What are the streams?"); System.exit(1); Array("")
         }
 
         if (opts.contains(Symbol("eventSleep")))
@@ -57,19 +68,39 @@ object Source {
                 props
             }
 
-            val producer = new KafkaProducer[String, String](kafkaProducerProps)
+            var threads = Array[Thread]()
 
-            for (i <- 1 to nrOfEvents) {
-                producer.send(new ProducerRecord[String, String]("stream-1", "" + (i % 4), hostname + ": value " + i)).get()
-                Thread.sleep(eventSleep)
+            val es = Executors.newCachedThreadPool
+
+            for (stream <- streams) {
+                es.execute(new Thread(new Runnable {
+                    private var props: Properties = _
+                    private var stream: String = _
+
+                    def init(props: Properties, stream: String): Runnable = {
+                        this.props = props
+                        this.stream = stream
+                        this
+                    }
+
+                    override def run: Unit = {
+                        val producer = new KafkaProducer[String, String](props)
+
+                        for (i <- 1 to nrOfEvents) {
+                            producer.send(new ProducerRecord[String, String](stream, "" + (i % 4), "hostname: " + hostname + " stream: " + stream + ": value " + i)).get()
+                            Thread.sleep(eventSleep)
+                        }
+                    }
+                }.init(kafkaProducerProps, stream)))
             }
 
-            // ToDo: Write stuff into second stream as well
-            // ToDo: Make the write generic with a STREAM_LIST input
+            es.shutdown // Waits until all threads finish & tells the executor to not accept any other runnables & to shutdown when all threads finished
+            es.awaitTermination(maxExecutionTime, TimeUnit.MILLISECONDS)
         } catch {
             case e: Exception => println("Something went wrong in source on " + hostname + " with exception: " + e)
+            System.exit(1)
         }
 
-        System.exit(0);
+        System.exit(0)
     }
 }
