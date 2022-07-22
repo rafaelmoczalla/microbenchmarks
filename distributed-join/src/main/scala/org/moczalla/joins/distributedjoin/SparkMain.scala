@@ -43,7 +43,8 @@ object SparkMain {
     case class Record(
         hostname: String,
         stream: String,
-        value: Int
+        value: Int,
+        timestamp: Long
     )
 
     @throws(classOf[Exception])
@@ -116,14 +117,15 @@ object SparkMain {
                     ssc,
                     PreferConsistent,
                     Subscribe[String, String](Array(stream), kafkaParams)
-                ).map(record => record.value)
-                .flatMap(record => {
+                ).map(record => (record.value, record.timestamp))
+                .flatMap({case (record: String, timestamp: Long) =>
                     JSON.parseFull(record).map(rawMap => {
                         val map = rawMap.asInstanceOf[Map[String, Any]]
                         (map.get("key").get.toString.toDouble.toInt, Record(
                             map.get("hostname").get.toString,
                             map.get("stream").get.toString,
-                            map.get("value").get.toString.toDouble.toInt
+                            map.get("value").get.toString.toDouble.toInt,
+                            timestamp
                         ))
                     })
                 })//.cache()
@@ -133,13 +135,13 @@ object SparkMain {
                 if (srcs.length < 2)
                     srcs(0).print
                 else
-                    srcs(0).window(Seconds(60))
-                        .join(srcs(1).window(Seconds(60))).map(record => {
+                    srcs(0).window(Seconds(60), Seconds(10))
+                        .join(srcs(1).window(Seconds(60), Seconds(10))).map(record => {
                             val key = record._1
                             val r0 = record._2._1
                             val r1 = record._2._2
 
-                            (key, r0.hostname, r1.hostname, r0.stream, r1.stream, r0.value, r1.value)
+                            (key, r0.hostname, r1.hostname, r0.stream, r1.stream, r0.value, r1.value, r0.timestamp, r1.timestamp)
                         }).print
             }
 
