@@ -28,12 +28,20 @@ rmSources:
 		docker exec -it \$(shell echo \$(sources) | cut -d " " -f1) /kafka/bin/kafka-topics.sh --if-exists --delete --topic \$\$s --bootstrap-server localhost:9092 ; \\
 	done
 
-submitJob:
+buildJob:
 	gradle :distributed-join:build
+
+quickSubmitJob:
 	@if [ -f "./distributed-join/build/libs/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar" ]; then cp "./distributed-join/build/libs/${SPARK_APP_ARCHIVE_BASE_NAME}-${SPARK_APP_ARCHIVE_VERSION}.jar" "./submit/"; fi
 	docker build --tag spark-job ./submit
-	docker run --rm --network ${DOCKER_NETWORK} --name spark-job spark-job
+	docker run --rm --network ${DOCKER_NETWORK} \
+		--env BOOTSTRAP_SERVERS_PORT=${BOOTSTRAP_SERVERS_PORT} \
+		--env SOURCE_LIST="${SOURCE_LIST}" \
+		--env STREAM_LIST="${STREAM_LIST}" \
+		--name spark-job spark-job
 	docker rmi spark-job
+
+submitJob: buildJob quickSubmitJob
 
 clean:
 	gradle clean

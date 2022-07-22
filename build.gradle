@@ -34,6 +34,7 @@ task buildFiles(type: Copy) {
         SOURCE_ARCHIVE_BASE_NAME: "$sourceArchiveBaseName",
         SOURCE_ARCHIVE_VERSION: "$sourceArchiveVersion",
         SOURCE_LIST: "$sourceList",
+        BOOTSTRAP_SERVERS_PORT: "$bootstrapServersPort",
 
         STREAM_LIST: "$streamList"
     ])

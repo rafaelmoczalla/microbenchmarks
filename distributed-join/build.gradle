@@ -21,13 +21,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.scala-lang:scala-library:$scalaVersion.$scalaSubversion")
+    compileOnly("org.scala-lang:scala-library:${scalaVersion}.$scalaSubversion")
     compileOnly("org.apache.spark:spark-mllib_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-sql_$scalaVersion:$sparkVersion")
-    compileOnly("org.apache.spark:spark-sql-kafka-0-10_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-graphx_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-launcher_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-catalyst_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-streaming_$scalaVersion:$sparkVersion")
+    compileOnly("org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion")
     compileOnly("org.apache.spark:spark-core_$scalaVersion:$sparkVersion")
 }

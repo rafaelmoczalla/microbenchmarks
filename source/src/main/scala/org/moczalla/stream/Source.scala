@@ -52,6 +52,9 @@ object Source {
             case None => println("Environment variable STREAM_LIST not set. What are the streams?"); System.exit(1); Array("")
         }
 
+        if (opts.contains(Symbol("maxExecutionTime")))
+            maxExecutionTime = opts(Symbol("maxExecutionTime")).asInstanceOf[Int]
+
         if (opts.contains(Symbol("eventSleep")))
             eventSleep = opts(Symbol("eventSleep")).asInstanceOf[Int]
 
@@ -87,7 +90,7 @@ object Source {
                         val producer = new KafkaProducer[String, String](props)
 
                         for (i <- 1 to nrOfEvents) {
-                            producer.send(new ProducerRecord[String, String](stream, "" + (i % 4), "hostname: " + hostname + " stream: " + stream + ": value " + i)).get()
+                            producer.send(new ProducerRecord[String, String](stream, "" + (i % 4), "{ \"key\":" + (i % 4) + ", \"hostname\": \"" + hostname + "\", \"stream\": \"" + stream + "\", \"value\": " + i + "}")).get()
                             Thread.sleep(eventSleep)
                         }
                     }
