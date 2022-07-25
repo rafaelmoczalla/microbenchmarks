@@ -18,11 +18,19 @@ task buildFiles(type: Copy) {
         DOCKER_NETWORK: "$dockerNetwork",
 
         SCALA_VERSION: "$scalaVersion",
+        SCALA_SUBVERSION: "$scalaSubversion",
         SPARK_VERSION: "$sparkVersion",
+        SPARK_KAFKA_VERSION: "$sparkKafkaVersion",
+        SPARK_BASE_URL: "$sparkBaseUrl",
+        HADOOP_VERSION: "$hadoopVersion",
+        KAFKA_VERSION: "$kafkaVersion",
+        KAFKA_BASE_URL: "$kafkaBaseUrl",
 
         SPARK_HOME: "$sparkHome",
         SPARK_MASTER_NAME: "$sparkMasterName",
         SPARK_MASTER_PORT: "$sparkMasterPort",
+        SPARK_MASTER_WEBUI_PORT: "$sparkMasterWebuiPort",
+        SPARK_WORKER_WEBUI_PORT: "$sparkWorkerWebuiPort",
         SPARK_SUBMIT_ARGS: "$sparkSubmitArgs",
         SPARK_APP_FOLDER: "$sparkAppFolder",
         SPARK_APP_ARCHIVE_BASE_NAME: "$sparkAppArchiveBaseName",
@@ -31,10 +39,20 @@ task buildFiles(type: Copy) {
         SPARK_APP_ARGS: "$sparkAppArgs",
         SPARK_APP_PYTHON_LOCATION: "\${SPARK_APP_PYTHON_LOCATION}",
 
+        ZOOKEEPER_PEER_PORT:"$zookeeperPeerPort",
+        ZOOKEEPER_LEADER_PORT: "$zookeeperLeaderPort",
+        ZOOKEEPER_CLIENT_PORT: "$zookeeperClientPort",
+        ZOOKEEPER_MAX_CLIENT_CNXNS: "$zookeeperMaxClientCnxns",
+        ZOOKEEPER_SYNC_LIMIT: "$zookeeperSyncLimit",
+        ZOOKEEPER_INIT_LIMIT: "$zookeeperInitLimit",
+        ZOOKEEPER_TICK_TIME: "$zookeeperTickTime",
+
+        KAFKA_HOME: "$kafkaHome",
+        KAFKA_BOOTSTRAP_SERVERS_PORT: "$kafkaBootstrapServersPort",
+
         SOURCE_ARCHIVE_BASE_NAME: "$sourceArchiveBaseName",
         SOURCE_ARCHIVE_VERSION: "$sourceArchiveVersion",
         SOURCE_LIST: "$sourceList",
-        BOOTSTRAP_SERVERS_PORT: "$bootstrapServersPort",
 
         STREAM_LIST: "$streamList"
     ])

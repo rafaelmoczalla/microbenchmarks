@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation("org.scala-lang:scala-library:${scalaVersion}.$scalaSubversion")
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion") {
+    implementation("org.apache.kafka:kafka-clients:$sparkKafkaVersion") {
         exclude group: "org.slf4l", module: "slf4j-api"
     }
 }
