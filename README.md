@@ -74,6 +74,8 @@ After starting the sources we can submit & start the join with
 make submitJob
 ```
 
-## ToDo List
-- [x] Basic source
-- [ ] Add a "measuring" subproject.
+## To-Do List
+- [X] Implement basic source.
+- [X] Implement basic join.
+- [ ] Add a "measuring" subproject providing tools for measuring sustainable throughput & latency.
+- [ ] Implement a first micro benchmark.
